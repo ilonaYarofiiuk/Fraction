@@ -9,7 +9,7 @@ private:
 	int _b;
 public:
 	Fraction() { _a = _b = 1; }
-	Fraction(int a, int b) { _a = a; _b = b; }
+	Fraction(int a, int b);
 	~Fraction() {};
 	void setA(int a) { _a = a; }
 	void setB(int b) { _b = b; }
@@ -19,12 +19,30 @@ public:
 	int getLCM(int b1, int b2);
 	void toString() { cout << _a << "/" << _b << endl; }
 	void reduction();
+	double toDouble() { return (double)_a / (double)_b; }
 	Fraction operator*(Fraction obj);
 	Fraction operator/(Fraction obj);
 	Fraction operator+(Fraction obj);
-	
+	Fraction operator+(int num);
+	friend Fraction operator+(int num, Fraction obj);
+	Fraction operator-(Fraction obj);
+	bool operator==(Fraction obj);
+	bool operator>(Fraction obj);
 
 };
+
+Fraction::Fraction(int a, int b)
+{
+	if (a < 0 && b < 0) {
+		_a = -a; _b = -b;
+		return;
+	}
+	else if (b < 0) {
+		_a = -a; _b = -b;
+		return;
+	}
+	_a = a; _b = b;
+}
 
 int Fraction::getGCD(int b1, int b2)
 {
@@ -81,6 +99,59 @@ Fraction Fraction::operator+(Fraction obj)
 	return tmp;
 }
 
+Fraction Fraction::operator+(int num)
+{
+	Fraction tmp;
+	tmp._b = this->_b;
+	int a = num * tmp._b;
+	tmp._a = a + this->_a;
+	return tmp;
+}
+
+Fraction Fraction::operator-(Fraction obj)
+{
+	Fraction tmp;
+	int commenB = getLCM(this->_b, obj._b);
+	int a1 = commenB / this->_b * this->_a;
+	int a2 = commenB / obj._b * obj._a;
+	tmp._a = a1 - a2;
+	tmp._b = commenB;
+	return tmp;
+}
+
+bool Fraction::operator==(Fraction obj)
+{
+	Fraction tmp1 = *this;
+	tmp1.reduction();
+	Fraction tmp2 = obj;
+	tmp2.reduction();
+	if (tmp1._b == tmp2._b && tmp1._a == tmp2._a)
+		return true;
+	else
+		return false;
+}
+
+bool Fraction::operator>(Fraction obj)
+{
+	Fraction tmp1 = *this;
+	tmp1.reduction();
+	Fraction tmp2 = obj;
+	tmp2.reduction();
+
+	int commenB = getLCM(this->_b, obj._b);
+	int a1 = commenB / this->_b * this->_a;
+	int a2 = commenB / obj._b * obj._a;
+
+	tmp1._b = tmp2._b = commenB;
+	tmp1._a = a1;
+	tmp2._a = a2;
+
+	if (tmp1._a > tmp2._a)
+		return true;
+	else
+		return false;
+}
+
 int main() {
 	Fraction a(5, 6);
 	Fraction b(6, 8);
@@ -97,7 +168,33 @@ int main() {
 
 	c = a + b;
 	c.toString();
+
+	c = a - b;
+	c.toString();
+
+	Fraction d(10, 5);
+	d.toString();
+
+	if (a > d) {
+		cout << "Greatar " << endl;
+	}
+	else {
+		cout << "Lesser " << endl;
+	}
+
+	Fraction f(2, 3);
+	c = 2 + f;
+	c.toString();
+
+	cout << c.toDouble() << endl;
 	return 0;
 }
 
-
+Fraction operator+(int num, Fraction obj)
+{
+	Fraction tmp;
+	tmp._b = obj._b;
+	int a = num * tmp._b;
+	tmp._a = a + obj._a;
+	return tmp;
+}
